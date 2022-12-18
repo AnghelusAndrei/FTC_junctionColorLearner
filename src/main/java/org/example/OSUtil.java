@@ -2,7 +2,7 @@ package org.example;
 
 public class OSUtil {
     public enum OS {
-        WINDOWS("opencv_java400", ".dll"), LINUX("opencv_java400", ".so"), MAC, SOLARIS;
+        WINDOWS("opencv_java460", ".dll"), LINUX("opencv_java460", ".so"), MAC, SOLARIS;
         OS(){}
         OS(String libraryName, String librarySuffix){
             this.libraryName=libraryName;

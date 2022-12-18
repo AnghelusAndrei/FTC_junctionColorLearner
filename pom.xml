@@ -13,25 +13,12 @@
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    <repositories>
-        <repository>
-            <id>clojars.org</id>
-            <url>https://repo.clojars.org</url>
-        </repository>
-    </repositories>
     <dependencies>
-        <!-- https://mvnrepository.com/artifact/opencv/opencv -->
         <dependency>
-            <groupId>opencv</groupId>
-            <artifactId>opencv</artifactId>
-            <version>4.0.0-0</version>
-        </dependency><dependency>
-        <groupId>org.tensorflow</groupId>
-        <artifactId>tensorflow-core</artifactId>
-        <version>0.4.2</version>
-    </dependency>
-
-
+            <groupId>org.tensorflow</groupId>
+            <artifactId>tensorflow-core</artifactId>
+            <version>0.4.2</version>
+        </dependency>
     </dependencies>
 
 
