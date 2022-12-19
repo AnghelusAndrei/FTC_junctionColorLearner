@@ -8,12 +8,10 @@ import org.opencv.videoio.VideoCapture;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import java.awt.desktop.UserSessionEvent;
 import java.awt.event.*;
 import java.io.*;
 import java.util.Objects;
 import java.awt.image.BufferedImage;
-import java.util.Vector;
 
 import static org.opencv.core.CvType.CV_8U;
 
@@ -21,6 +19,16 @@ public class Main {
 
     private static final int[] di = {1,0,-1,0};
     private static final int[] dj = {0,1,0,-1};
+
+    private static Mat image;
+    private static Mat matrix;
+    private static Mat overlay;
+    private static Mat expectedImage;
+    private static Mat overlay_rgb;
+    private static Mat expectedImage_rgb;
+    private static Mat window_surface;
+
+
 
     private static void Learn(Mat data, Mat expectedOutput, NeuralNetwork network){
         for(int i = 0; i < data.rows(); i++){
@@ -54,15 +62,6 @@ public class Main {
         return table;
     }
 
-    static BufferedImage Mat2BufferedImage(Mat matrix)throws Exception {
-        MatOfByte mob=new MatOfByte();
-        Imgcodecs.imencode(".jpg", matrix, mob);
-        byte ba[]=mob.toArray();
-
-        BufferedImage bi= ImageIO.read(new ByteArrayInputStream(ba));
-        return bi;
-    }
-
     private static void FloodFill(int i, int j, Mat matToFill, Mat matToDetect, Scalar valueToFill, Scalar valueToDetect){
         if(i>=0 && i<matToDetect.rows() && j>=0 && j<matToDetect.cols()){
             Scalar value1 = new Scalar(0);
@@ -79,67 +78,8 @@ public class Main {
         }
     }
 
-    public static void main(String[] args) {
-        try {
-                System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-
-        }catch (UnsatisfiedLinkError e){
-                System.out.println("Native OpenCV not found");
-                OSUtil.OS os = OSUtil.getOS();
-                try(InputStream libraryInputStream=Main.class.getClassLoader().getResourceAsStream(os.getLibraryName()+os.getLibrarySuffix()))
-                {
-                    File libraryTempFile = File.createTempFile(os.getLibraryName(), os.getLibrarySuffix());
-                    try(FileOutputStream libraryTempFileOutputStream = new FileOutputStream(libraryTempFile))
-                    {
-
-                        Objects.requireNonNull(libraryInputStream).transferTo(libraryTempFileOutputStream);
-                    }
-                    libraryTempFile.deleteOnExit();
-                    System.load(libraryTempFile.getAbsolutePath());
-                }catch (IOException ex)
-                {
-                    ex.printStackTrace();
-                }
-
-        }
-
-        System.out.println("Loaded OpenCV");
-
-
-        VideoCapture capture = new VideoCapture(0);
-
-        Mat matrix;
-        Mat image = new Mat();
-
-        int[] layerSizes = new int[2];
-        layerSizes[0] = 5;
-        layerSizes[1] = 2;
-
-
-
-        NeuralNetwork neuralNetwork = new NeuralNetwork(layerSizes);
-
-        int[] trainingIndex = new int[2];
-        boolean training = false;
-
-
-        capture.read(image);
-
-        matrix = new Mat(image.rows(), image.cols(), image.type());
-
-        Core.copyTo(image, matrix, image);
-
-        Mat expectedImage = new Mat(image.rows(), image.cols(), CV_8U);
-        Mat expectedImage_rgb = new Mat(image.rows(), image.cols(), image.type());
-        Mat window_surface = new Mat(image.rows(), image.cols(), image.type());
-        Mat overlay = new Mat(image.rows(), image.cols(), CV_8U);
-        Mat overlay_rgb = new Mat(image.rows(), image.cols(), image.type());
-        Mat mask = new Mat();
-
-        JFrame imageJframe = HighGui.createJFrame("Vision training data", JFrame.EXIT_ON_CLOSE);
-        JLabel label = new JLabel();
-
-        label.addMouseListener(new MouseAdapter() {
+    private static void HandleEvents(Window window){
+        window.label.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent arg0) {
                 if (arg0.getButton() == MouseEvent.BUTTON1){
@@ -168,7 +108,7 @@ public class Main {
                 }
             }
         });
-        label.addMouseMotionListener(new MouseMotionAdapter() {
+        window.label.addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseDragged(MouseEvent e) {
                 Point point = new Point(e.getX(), e.getY());
@@ -180,31 +120,84 @@ public class Main {
 
             }
         });
+    }
 
+    public static void main(String[] args) throws Exception {
         try {
-            Core.copyTo(matrix, window_surface, matrix);
-            label.setIcon(new ImageIcon(Mat2BufferedImage(window_surface)));
+                System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
-            imageJframe.getContentPane().add(label);
-            imageJframe.pack();
-            imageJframe.setVisible(true);
+        }catch (UnsatisfiedLinkError e){
+                System.out.println("Native OpenCV not found");
+                OSUtil.OS os = OSUtil.getOS();
+                try(InputStream libraryInputStream=Main.class.getClassLoader().getResourceAsStream(os.getLibraryName()+os.getLibrarySuffix()))
+                {
+                    File libraryTempFile = File.createTempFile(os.getLibraryName(), os.getLibrarySuffix());
+                    try(FileOutputStream libraryTempFileOutputStream = new FileOutputStream(libraryTempFile))
+                    {
 
+                        Objects.requireNonNull(libraryInputStream).transferTo(libraryTempFileOutputStream);
+                    }
+                    libraryTempFile.deleteOnExit();
+                    System.load(libraryTempFile.getAbsolutePath());
+                }catch (IOException ex)
+                {
+                    ex.printStackTrace();
+                }
 
-            while(capture.read(image)){
-                Imgproc.cvtColor(overlay, overlay_rgb, Imgproc.COLOR_GRAY2RGB);
-                Imgproc.cvtColor(expectedImage, expectedImage_rgb, Imgproc.COLOR_GRAY2RGB);
-                Core.copyTo(matrix, window_surface, matrix);
-                Core.copyTo(overlay_rgb, window_surface, overlay);
-                Core.copyTo(expectedImage_rgb, window_surface, expectedImage);
-
-                label.setIcon(new ImageIcon(Mat2BufferedImage(window_surface)));
-            }
-
-            capture.release();
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
+
+        System.out.println("Loaded OpenCV");
+
+
+        VideoCapture capture = new VideoCapture(0);
+
+        image = new Mat();
+
+        int[] layerSizes = new int[2];
+        layerSizes[0] = 5;
+        layerSizes[1] = 2;
+
+
+        NeuralNetwork neuralNetwork = new NeuralNetwork(layerSizes);
+
+
+        capture.read(image);
+
+        matrix = new Mat(image.rows(), image.cols(), image.type());
+
+        Core.copyTo(image, matrix, image);
+
+        expectedImage = new Mat(image.rows(), image.cols(), CV_8U);
+        expectedImage_rgb = new Mat(image.rows(), image.cols(), image.type());
+        window_surface = new Mat(image.rows(), image.cols(), image.type());
+        overlay = new Mat(image.rows(), image.cols(), CV_8U);
+        overlay_rgb = new Mat(image.rows(), image.cols(), image.type());
+
+        JFrame imageJframe = HighGui.createJFrame("Vision training data", JFrame.EXIT_ON_CLOSE);
+        JLabel label = new JLabel();
+
+        Window window = new Window(imageJframe, label);
+
+        HandleEvents(window);
+
+        window_surface.setTo(new Scalar(0,0,0));
+        Core.copyTo(matrix, window_surface, matrix);
+
+        window.init(window_surface);
+
+
+        while(capture.read(image)){
+            window_surface.setTo(new Scalar(0,0,0));
+            Imgproc.cvtColor(overlay, overlay_rgb, Imgproc.COLOR_GRAY2RGB);
+            Imgproc.cvtColor(expectedImage, expectedImage_rgb, Imgproc.COLOR_GRAY2RGB);
+            Core.copyTo(matrix, window_surface, matrix);
+            Core.copyTo(overlay_rgb, window_surface, overlay);
+            Core.copyTo(expectedImage_rgb, window_surface, expectedImage);
+
+            window.run(window_surface);
+        }
+
+        capture.release();
 
     }
 }
