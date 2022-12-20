@@ -27,7 +27,7 @@ public class UI {
 
     public void run() throws Exception {
         while(capture.read(surface.image)){
-            window.run(surface.getWindowSurface());
+            window.run(surface.getWindowSurface(window));
         }
     }
 }

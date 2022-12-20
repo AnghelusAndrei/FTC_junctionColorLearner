@@ -20,37 +20,6 @@ public class Main {
 
 
 
-    private static void Learn(Mat data, Mat expectedOutput, NeuralNetwork network){
-        for(int i = 0; i < data.rows(); i++){
-            for(int j = 0; j < data.cols(); j++){
-                double[] inputs = data.get(i,j);
-                inputs[0] /= 255;
-                inputs[1] /= 255;
-                inputs[2] /= 255;
-                double[] expectedOutputs = expectedOutput.get(i,j);
-                expectedOutputs[0] /= 255;
-                expectedOutputs[1] = 1-expectedOutputs[0];
-                network.Learn(inputs, expectedOutputs, 0.2);
-            }
-        }
-    }
-
-    private static double[][][] lookupTable(NeuralNetwork network){
-        double[][][] table = new double[255][255][255];
-        for(int i = 0; i < 255; i++){
-            for(int j = 0; j < 255; j++){
-                for(int k = 0; k < 255; k++){
-                    double[] inputs = new double[3];
-                    inputs[0] = i;
-                    inputs[1] = j;
-                    inputs[2] = k;
-                    double[] outputs = network.CalculateOutputs(inputs);
-                    table[i][j][k] = outputs[0];
-                }
-            }
-        }
-        return table;
-    }
 
     public static void main(String[] args) throws Exception {
         try {

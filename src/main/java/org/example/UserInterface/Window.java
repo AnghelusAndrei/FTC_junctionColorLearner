@@ -3,9 +3,11 @@ package org.example.UserInterface;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.core.Point;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 
@@ -13,7 +15,11 @@ public class Window {
     public JFrame imageJframe;
     public JLabel label;
 
+    public Point cursurLocation;
+    public int cursorZoom;
+
     Window(JFrame imageJframe, JLabel label){
+        cursurLocation = new Point(0,0);
         this.imageJframe = imageJframe;
         this.label = label;
     }

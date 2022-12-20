@@ -1,65 +1,20 @@
 package org.example.UserInterface;
 
+import org.example.EventMethods;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
+import java.awt.event.*;
 import java.util.*;
 
 public class EventHandler {
 
 
-    private class fillCoordonates{
-        public int row;
-        public int col;
-        fillCoordonates(int i, int j){
-            this.row = i;
-            this.col = j;
-        }
-    }
-
-    void FloodFill(int i, int j, Mat matToFill, Mat matToDetect, Scalar valueToFill, Scalar valueToDetect)
-    {
-        final int[] di = {1,0,-1,0};
-        final int[] dj = {0,1,0,-1};
-        int st = 0;
-        int dr = 0;
-        Queue<fillCoordonates> Q = new LinkedList<>();
-        Q.add(new fillCoordonates(i,j));
-        matToFill.put(i,j, valueToFill.val);
-
-        while(!Q.isEmpty())
-        {
-            int y = Q.peek().row;
-            int x = Q.peek().col;
-            for(int k = 0 ; k < 4 ; k ++)
-            {
-                int iv = y + di[k];
-                int jv = x + dj[k];
-                Scalar value1 = new Scalar(0);
-                Scalar value2 = new Scalar(0);
-                value1.val = matToDetect.get(iv,jv);
-                value2.val = matToFill.get(iv,jv);
-                if(
-                        iv >= 0 && iv < matToDetect.rows() &&
-                        jv >= 1 && jv <= matToDetect.cols() &&
-                        value2.val[0] != valueToFill.val[0] &&
-                        value1.val[0] != valueToDetect.val[0]
-                ){
-                    matToFill.put(iv,jv, valueToFill.val);
-                    Q.add(new fillCoordonates(iv,jv));
-                }
-            }
-            Q.poll();
-        }
-    }
-
     EventHandler(Window window, Surface surface){
+        EventMethods methods = new EventMethods();
         window.label.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent arg0) {
@@ -76,16 +31,7 @@ public class EventHandler {
                 } else if (arg0.getButton() == MouseEvent.BUTTON3) {
                     //right click
 
-                    FloodFill(arg0.getY(), arg0.getX(), surface.expectedImage, surface.overlay, new Scalar(255), new Scalar(255));//fara stack sau alte chestii de optimizare
-
-                    //openCv method: (not working)
-                    /*Core.copyTo(overlay,mask,overlay);
-                    Core.copyTo(overlay,expectedImage,overlay);
-                    Core.copyMakeBorder(mask, mask, 1, 1, 1, 1, Core.BORDER_REPLICATE);
-                    System.out.println("pos: " + arg0.getX() + " & " + arg0.getY());
-                    Imgproc.floodFill(expectedImage, mask, new Point(arg0.getX(), arg0.getY()), new Scalar(255), new Rect(), new Scalar(0), new Scalar(0), 4 | Imgproc.FLOODFILL_MASK_ONLY | (255 << 8));
-                    Core.subtract(expectedImage, overlay, expectedImage);
-                     */
+                    methods.FloodFill(arg0.getY(), arg0.getX(), surface.expectedImage, surface.overlay, new Scalar(255), new Scalar(255));
                 }
             }
         });
@@ -93,12 +39,39 @@ public class EventHandler {
             @Override
             public void mouseDragged(MouseEvent e) {
                 Point point = new Point(e.getX(), e.getY());
-                Imgproc.circle(surface.overlay, point, 1, new Scalar(255),-1);
+
+                double x = point.x;
+                double y = point.y;
+
+                double height = (double)surface.image.rows() - ((double)window.cursorZoom * 2 * ((double)surface.image.rows()/(double)surface.image.cols()));
+                double width = (double)surface.image.cols() - (double)window.cursorZoom * 2;
+
+                double xn = window.cursurLocation.x - (width/2);
+                double yn = window.cursurLocation.y - (height/2);
+                xn = xn < 0 ? 0 : (xn > ((double)surface.image.cols() - width) ? ((double)surface.image.cols() - width) : xn);
+                yn = yn < 0 ? 0 : (yn > ((double)surface.image.rows() - height) ? ((double)surface.image.rows() - height) : yn);
+
+                x = (x/((double)surface.image.cols())) * width + xn;
+                y = (y/((double)surface.image.rows())) * height + yn;
+
+
+                double[] value = {255};
+                surface.overlay.put((int)Math.round(y), (int)Math.round(x), value);
             }
 
             @Override
-            public void mouseMoved(MouseEvent e) {
+            public void mouseMoved(MouseEvent e){
+            }
+        });
 
+        window.label.addMouseWheelListener(new MouseWheelListener() {
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent e) {
+                Point point = new Point(e.getX(), e.getY());
+                window.cursurLocation = point;
+                window.cursorZoom += e.getWheelRotation() * e.getScrollAmount();
+                window.cursorZoom = (window.cursorZoom < 0) ? 0 : window.cursorZoom;
+                window.cursorZoom = window.cursorZoom > (surface.image.cols() / 2 - 10) ? (surface.image.cols() / 2 - 10) : window.cursorZoom;
             }
         });
     }
