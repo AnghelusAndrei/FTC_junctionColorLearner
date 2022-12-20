@@ -1,4 +1,4 @@
-package org.example;
+package org.example.UserInterface;
 
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
