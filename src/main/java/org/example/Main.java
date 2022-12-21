@@ -3,6 +3,7 @@ import basicneuralnetwork.NeuralNetwork;
 import org.example.UserInterface.UI;
 import org.opencv.core.*;
 import org.opencv.videoio.VideoCapture;
+import org.opencv.videoio.Videoio;
 
 import java.io.*;
 import java.util.Objects;
@@ -38,11 +39,13 @@ public class Main {
 
         System.out.println("Loaded OpenCV");
 
-        NeuralNetwork neuralNetwork = new NeuralNetwork(3, 5, 1);
+        NeuralNetwork neuralNetwork = new NeuralNetwork(3, 200, 1);
 
 
 
-        VideoCapture capture = new VideoCapture(0);
+        VideoCapture capture;
+        if(OSUtil.getOS()== OSUtil.OS.LINUX) capture= new VideoCapture(0, Videoio.CAP_V4L2);
+        else capture = new VideoCapture(0);
 
         UI userInterface = new UI(capture, neuralNetwork);
         userInterface.run();

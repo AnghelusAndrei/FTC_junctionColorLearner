@@ -9,10 +9,10 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 public class EventMethods {
-    private class fillCoordonates{
+    private class FillCoordinates {
         public int row;
         public int col;
-        fillCoordonates(int i, int j){
+        FillCoordinates(int i, int j){
             this.row = i;
             this.col = j;
         }
@@ -22,8 +22,8 @@ public class EventMethods {
     {
         final int[] di = {1,0,-1,0};
         final int[] dj = {0,1,0,-1};
-        Queue<fillCoordonates> Q = new LinkedList<>();
-        Q.add(new fillCoordonates(i,j));
+        Queue<FillCoordinates> Q = new LinkedList<>();
+        Q.add(new FillCoordinates(i,j));
         matToFill.put(i,j, valueToFill.val);
 
         while(!Q.isEmpty())
@@ -45,7 +45,7 @@ public class EventMethods {
                                 value1.val[0] != valueToDetect.val[0]
                 ){
                     matToFill.put(iv,jv, valueToFill.val);
-                    Q.add(new fillCoordonates(iv,jv));
+                    Q.add(new FillCoordinates(iv,jv));
                 }
             }
             Q.poll();
@@ -56,24 +56,24 @@ public class EventMethods {
         System.out.println("Started learning from current training data");
         int q = 0;
 
-        network.setLearningRate(0.04);
+        network.setLearningRate(0.1);
         network.setActivationFunction(ActivationFunction.SIGMOID);
 
         for(int i = 0; i < data.rows(); i++){
             for(int j = 0; j < data.cols(); j++){
                 double[] ignored_data = ignored.get(i,j);
                 double[] inputs = data.get(i,j);
-                if((inputs[0] == 0 && inputs[1] == 0 && inputs[2] == 0) || ignored_data[0] > 100) {q++;continue;}
+                if((inputs[0] == 0 && inputs[1] == 0 && inputs[2] == 0) || ignored_data[0] > 100) {continue;}
                 inputs[0] /= 255.0;
                 inputs[1] /= 255.0;
                 inputs[2] /= 255.0;
                 double[] expectedOutputs = expectedOutput.get(i,j);
                 expectedOutputs[0] /= 255.0;
-
+                q++;
                 network.train(inputs, expectedOutputs);
             }
         }
-        System.out.println("Finished learning from current training data, ignored: " + q);
+        System.out.println("Finished learning from current training data, learned pixels: " + q);
     }
 
     public double[][][] lookupTable(NeuralNetwork network){
