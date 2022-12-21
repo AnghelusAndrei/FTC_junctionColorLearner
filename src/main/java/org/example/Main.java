@@ -38,7 +38,7 @@ public class Main {
 
         System.out.println("Loaded OpenCV");
 
-        NeuralNetwork neuralNetwork = new NeuralNetwork(3, 2, 5, 1);
+        NeuralNetwork neuralNetwork = new NeuralNetwork(3, 5, 1);
 
 
 
