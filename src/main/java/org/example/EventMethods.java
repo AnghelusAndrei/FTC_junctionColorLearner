@@ -64,11 +64,11 @@ public class EventMethods {
                 double[] ignored_data = ignored.get(i,j);
                 double[] inputs = data.get(i,j);
                 if((inputs[0] == 0 && inputs[1] == 0 && inputs[2] == 0) || ignored_data[0] > 100) {q++;continue;}
-                inputs[0] /= 255;
-                inputs[1] /= 255;
-                inputs[2] /= 255;
+                inputs[0] /= 255.0;
+                inputs[1] /= 255.0;
+                inputs[2] /= 255.0;
                 double[] expectedOutputs = expectedOutput.get(i,j);
-                expectedOutputs[0] /= 255;
+                expectedOutputs[0] /= 255.0;
 
                 network.train(inputs, expectedOutputs);
             }
