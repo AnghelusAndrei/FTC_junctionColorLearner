@@ -7,7 +7,9 @@ import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
+import javax.swing.*;
 import java.awt.event.*;
+import java.io.*;
 
 public class EventHandler {
 
@@ -73,6 +75,8 @@ public class EventHandler {
                     }
                     System.out.println("Finished exporting LUT");
                 }
+
+
             }
 
             @Override
@@ -81,14 +85,52 @@ public class EventHandler {
             }
         });
         window.label.addMouseListener(new MouseAdapter() {
+
+            Point lastPoint;
             @Override
             public void mousePressed(MouseEvent arg0) {
                 if (arg0.getButton() == MouseEvent.BUTTON1 && window.isShift){
                     //left click
+                    Point point = new Point(arg0.getX(), arg0.getY());
+
+                    double x = point.x;
+                    double y = point.y;
+
+                    double height = (double)surface.image.rows() - ((double)window.cursorZoom * 2 * ((double)surface.image.rows()/(double)surface.image.cols()));
+                    double width = (double)surface.image.cols() - (double)window.cursorZoom * 2;
+
+                    double xn = window.cursurLocation.x - (width/2);
+                    double yn = window.cursurLocation.y - (height/2);
+                    xn = xn < 0 ? 0 : (xn > ((double)surface.image.cols() - width) ? ((double)surface.image.cols() - width) : xn);
+                    yn = yn < 0 ? 0 : (yn > ((double)surface.image.rows() - height) ? ((double)surface.image.rows() - height) : yn);
+
+                    point.x= (x/((double)surface.image.cols())) * width + xn;
+                    point.y = (y/((double)surface.image.rows())) * height + yn;
+
+                    if(lastPoint!=null)
+                    {
+                        // y = m*x+n
+                        Point vector = new Point(point.x- lastPoint.x, point.y- lastPoint.y);
+                        double length = Math.sqrt((vector.x* vector.x+ vector.y* vector.y));
+                        vector.x/=length;
+                        vector.y/=length;
+
+                        for(double i=0;i<length;i+=0.5)
+                        {
+                            Imgproc.circle(surface.overlay, new Point(lastPoint.x+vector.x*i, lastPoint.y+ vector.y*i), 1, new Scalar(255));
+                        }
+                        lastPoint=null;
+                    }else{
+                        lastPoint=point;
+                        Imgproc.circle(surface.overlay, point, 1, new Scalar(255));
+                    }
                 } else if (arg0.getButton() == MouseEvent.BUTTON2){
                     //middle button
 
                     double[] data = surface.matrix.get(Math.round(arg0.getY()), Math.round(arg0.getX()));
+                    data[0]/=255.0;
+                    data[1]/=255.0;
+                    data[2]/=255.0;
                     double[] guess = network.guess(data);
                     System.out.println(data[0] + ", " + data[1] + ", " + data[2] + " : " + guess[0]);
 
@@ -110,7 +152,7 @@ public class EventHandler {
                     x = (x/((double)surface.image.cols())) * width + xn;
                     y = (y/((double)surface.image.rows())) * height + yn;
 
-                    methods.FloodFill((int)Math.round(y), (int)Math.round(x), surface.expectedImage, surface.overlay, new Scalar(255), new Scalar(255));
+                    methods.FloodFill((int)Math.round(y), (int)Math.round(x), surface.expectedImage, surface.overlay);
                 }
             }
         });

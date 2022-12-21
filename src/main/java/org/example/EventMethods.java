@@ -2,11 +2,10 @@ package org.example;
 
 import basicneuralnetwork.NeuralNetwork;
 import basicneuralnetwork.activationfunctions.ActivationFunction;
-import org.opencv.core.Mat;
-import org.opencv.core.Scalar;
+import org.opencv.core.*;
+import org.opencv.imgproc.Imgproc;
 
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 public class EventMethods {
     private class FillCoordinates {
@@ -18,20 +17,30 @@ public class EventMethods {
         }
     }
 
-    public void FloodFill(int i, int j, Mat matToFill, Mat matToDetect, Scalar valueToFill, Scalar valueToDetect)
+    public void FloodFill(int i, int j, Mat matToFill, Mat matToDetect)
     {
         Mat mat = new Mat();
         Core.copyMakeBorder(matToDetect, mat, 1,1,1,1,Core.BORDER_DEFAULT, new Scalar(255));
         Imgproc.floodFill(matToFill,mat,new Point(j,i), new Scalar(255));
         
     }
+    private class LearningInput {
+        public double[] input;
+        public double expectedValue;
 
+        @Override
+        public int hashCode() {
+            return Arrays.hashCode(input);
+        }
+    }
     public void Learn(Mat data, Mat expectedOutput, Mat ignored, NeuralNetwork network){
         System.out.println("Started learning from current training data");
-        int q = 0;
+
 
         network.setLearningRate(0.04);
         network.setActivationFunction(ActivationFunction.SIGMOID);
+        HashSet<LearningInput> junctionInputs = new HashSet<>();
+        HashSet<LearningInput> nonJunctionInputs = new HashSet<>();
 
         for(int i = 0; i < data.rows(); i++){
             for(int j = 0; j < data.cols(); j++){
@@ -42,12 +51,26 @@ public class EventMethods {
                 inputs[1] /= 255.0;
                 inputs[2] /= 255.0;
                 double[] expectedOutputs = expectedOutput.get(i,j);
-                expectedOutputs[0] /= 255.0;
-                q++;
-                network.train(inputs, expectedOutputs);
+                if(expectedOutputs[0]==255.0)
+                {
+                    junctionInputs.add(new LearningInput(){{input=inputs; expectedValue=1;}});
+                }else nonJunctionInputs.add(new LearningInput(){{input=inputs; expectedValue=0;}});
+
             }
         }
-        System.out.println("Finished learning from current training data, learned pixels: " + q);
+        int intersectionSize = nonJunctionInputs.size();
+        nonJunctionInputs.removeAll(junctionInputs);
+        intersectionSize-=nonJunctionInputs.size();
+        List<LearningInput> junctionInputsList = new ArrayList<>(junctionInputs.stream().toList());
+        List<LearningInput> nonJunctionInputsList = new ArrayList<>(nonJunctionInputs.stream().toList());
+
+        junctionInputsList.addAll(nonJunctionInputsList);
+        Collections.shuffle(junctionInputsList);
+        for(LearningInput input: junctionInputsList)
+        {
+            network.train(input.input, new double[]{input.expectedValue});
+        }
+        System.out.printf("Finished learning from current training data, learned pixels: junction: %d, non-junction: %d, intersection: %d%n", junctionInputsList.size(),nonJunctionInputsList.size(), intersectionSize);
     }
 
     public double[][][] lookupTable(NeuralNetwork network){
