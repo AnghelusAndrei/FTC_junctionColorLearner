@@ -17,11 +17,13 @@ public class Window {
 
     public Point cursurLocation;
     public int cursorZoom;
+    public boolean isShift;
 
     Window(JFrame imageJframe, JLabel label){
         cursurLocation = new Point(0,0);
         this.imageJframe = imageJframe;
         this.label = label;
+        this.isShift = false;
     }
 
     void init(Mat window_surface) throws Exception{

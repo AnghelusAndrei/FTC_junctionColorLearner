@@ -31,17 +31,59 @@ public class EventHandler {
 
                     surface.overlay.setTo(new Scalar(0));
                     surface.expectedImage.setTo(new Scalar(0));
+                }else if(e.getKeyCode() == KeyEvent.VK_SHIFT){
+                    window.isShift = true;
+                } else if(e.getKeyCode()==KeyEvent.VK_E) {
+                    System.out.println("Starting to export LUT");
+                    File file = new File("data.txt");
+                    try {
+                        file.createNewFile();
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+
+                    try {
+                        FileOutputStream fileOutputStream = new FileOutputStream(file);
+                        OutputStreamWriter streamWriter = new OutputStreamWriter(fileOutputStream);
+                        double[] data = new double[3];
+                        for(int i=0;i<256;i++)
+                        {
+                            for(int j=0;j<256;j++)
+                            {
+                                for(int k=0;k<256;k++)
+                                {
+
+                                    data[0]=i/255.0;
+                                    data[1]=j/255.0;
+                                    data[2]=k/255.0;
+                                    double[] guess = network.guess(data);
+                                    if(guess[0]>0.5)
+                                    {
+                                        streamWriter.write(1);
+                                    }else {
+                                        streamWriter.write(0);
+                                    }
+                                }
+                            }
+                        }
+                        streamWriter.close();
+                        fileOutputStream.close();
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                    System.out.println("Finished exporting LUT");
                 }
             }
 
             @Override
             public void keyReleased(KeyEvent e) {
+                window.isShift = false;
             }
         });
         window.label.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent arg0) {
-                if (arg0.getButton() == MouseEvent.BUTTON1){
+                if (arg0.getButton() == MouseEvent.BUTTON1 && window.isShift){
                     //left click
                 } else if (arg0.getButton() == MouseEvent.BUTTON2){
                     //middle button

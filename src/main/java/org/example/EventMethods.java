@@ -20,43 +20,17 @@ public class EventMethods {
 
     public void FloodFill(int i, int j, Mat matToFill, Mat matToDetect, Scalar valueToFill, Scalar valueToDetect)
     {
-        final int[] di = {1,0,-1,0};
-        final int[] dj = {0,1,0,-1};
-        Queue<FillCoordinates> Q = new LinkedList<>();
-        Q.add(new FillCoordinates(i,j));
-        matToFill.put(i,j, valueToFill.val);
-
-        while(!Q.isEmpty())
-        {
-            int y = Q.peek().row;
-            int x = Q.peek().col;
-            for(int k = 0 ; k < 4 ; k ++)
-            {
-                int iv = y + di[k];
-                int jv = x + dj[k];
-                Scalar value1 = new Scalar(0);
-                Scalar value2 = new Scalar(0);
-                value1.val = matToDetect.get(iv,jv);
-                value2.val = matToFill.get(iv,jv);
-                if(
-                        iv >= 0 && iv < matToDetect.rows() &&
-                                jv >= 1 && jv <= matToDetect.cols() &&
-                                value2.val[0] != valueToFill.val[0] &&
-                                value1.val[0] != valueToDetect.val[0]
-                ){
-                    matToFill.put(iv,jv, valueToFill.val);
-                    Q.add(new FillCoordinates(iv,jv));
-                }
-            }
-            Q.poll();
-        }
+        Mat mat = new Mat();
+        Core.copyMakeBorder(matToDetect, mat, 1,1,1,1,Core.BORDER_DEFAULT, new Scalar(255));
+        Imgproc.floodFill(matToFill,mat,new Point(j,i), new Scalar(255));
+        
     }
 
     public void Learn(Mat data, Mat expectedOutput, Mat ignored, NeuralNetwork network){
         System.out.println("Started learning from current training data");
         int q = 0;
 
-        network.setLearningRate(0.1);
+        network.setLearningRate(0.04);
         network.setActivationFunction(ActivationFunction.SIGMOID);
 
         for(int i = 0; i < data.rows(); i++){
