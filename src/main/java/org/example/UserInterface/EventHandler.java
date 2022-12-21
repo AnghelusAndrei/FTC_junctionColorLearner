@@ -1,20 +1,43 @@
 package org.example.UserInterface;
 
+import basicneuralnetwork.NeuralNetwork;
 import org.example.EventMethods;
 import org.opencv.core.Core;
-import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
 import java.awt.event.*;
-import java.util.*;
 
 public class EventHandler {
 
 
-    EventHandler(Window window, Surface surface){
+    EventHandler(Window window, Surface surface, NeuralNetwork network){
         EventMethods methods = new EventMethods();
+
+        window.label.setFocusable(true);
+
+        window.label.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if(e.getKeyCode() == KeyEvent.VK_ENTER){
+                    methods.Learn(surface.matrix, surface.expectedImage, surface.overlay, network);
+                }else if(e.getKeyCode() == KeyEvent.VK_BACK_SPACE){
+                    Core.copyTo(surface.image, surface.matrix, surface.image);
+
+                    surface.overlay.setTo(new Scalar(0));
+                    surface.expectedImage.setTo(new Scalar(0));
+                }
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+            }
+        });
         window.label.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent arg0) {
@@ -22,16 +45,30 @@ public class EventHandler {
                     //left click
                 } else if (arg0.getButton() == MouseEvent.BUTTON2){
                     //middle button
-                    Core.copyTo(surface.image, surface.matrix, surface.image);
 
-                    surface.overlay.setTo(new Scalar(0));
-                    surface.expectedImage.setTo(new Scalar(0));
-
+                    double[] data = surface.matrix.get(Math.round(arg0.getY()), Math.round(arg0.getX()));
+                    double[] guess = network.guess(data);
+                    System.out.println(data[0] + ", " + data[1] + ", " + data[2] + " : " + guess[0]);
 
                 } else if (arg0.getButton() == MouseEvent.BUTTON3) {
                     //right click
+                    Point point = new Point(arg0.getX(), arg0.getY());
 
-                    methods.FloodFill(arg0.getY(), arg0.getX(), surface.expectedImage, surface.overlay, new Scalar(255), new Scalar(255));
+                    double x = point.x;
+                    double y = point.y;
+
+                    double height = (double)surface.image.rows() - ((double)window.cursorZoom * 2 * ((double)surface.image.rows()/(double)surface.image.cols()));
+                    double width = (double)surface.image.cols() - (double)window.cursorZoom * 2;
+
+                    double xn = window.cursurLocation.x - (width/2);
+                    double yn = window.cursurLocation.y - (height/2);
+                    xn = xn < 0 ? 0 : (xn > ((double)surface.image.cols() - width) ? ((double)surface.image.cols() - width) : xn);
+                    yn = yn < 0 ? 0 : (yn > ((double)surface.image.rows() - height) ? ((double)surface.image.rows() - height) : yn);
+
+                    x = (x/((double)surface.image.cols())) * width + xn;
+                    y = (y/((double)surface.image.rows())) * height + yn;
+
+                    methods.FloodFill((int)Math.round(y), (int)Math.round(x), surface.expectedImage, surface.overlay, new Scalar(255), new Scalar(255));
                 }
             }
         });
@@ -55,8 +92,7 @@ public class EventHandler {
                 y = (y/((double)surface.image.rows())) * height + yn;
 
 
-                double[] value = {255};
-                surface.overlay.put((int)Math.round(y), (int)Math.round(x), value);
+                Imgproc.circle(surface.overlay, new Point(x, y), 1, new Scalar(255));
             }
 
             @Override

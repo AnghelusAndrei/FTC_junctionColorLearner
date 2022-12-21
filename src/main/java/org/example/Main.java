@@ -1,20 +1,11 @@
 package org.example;
-import org.example.MachineLearning.NeuralNetwork;
+import basicneuralnetwork.NeuralNetwork;
 import org.example.UserInterface.UI;
 import org.opencv.core.*;
-import org.opencv.highgui.HighGui;
-import org.opencv.imgcodecs.Imgcodecs;
-import org.opencv.imgproc.Imgproc;
 import org.opencv.videoio.VideoCapture;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.event.*;
 import java.io.*;
 import java.util.Objects;
-import java.awt.image.BufferedImage;
-
-import static org.opencv.core.CvType.CV_8U;
 
 public class Main {
 
@@ -47,19 +38,13 @@ public class Main {
 
         System.out.println("Loaded OpenCV");
 
+        NeuralNetwork neuralNetwork = new NeuralNetwork(3, 2, 5, 1);
 
-        int[] layerSizes = new int[2];
-                            //the input layer is not an actual layer
-        layerSizes[0] = 5;  //first hidden layer
-        layerSizes[1] = 2;  //the output layer
-
-
-        NeuralNetwork neuralNetwork = new NeuralNetwork(layerSizes);
 
 
         VideoCapture capture = new VideoCapture(0);
 
-        UI userInterface = new UI(capture);
+        UI userInterface = new UI(capture, neuralNetwork);
         userInterface.run();
 
         capture.release();

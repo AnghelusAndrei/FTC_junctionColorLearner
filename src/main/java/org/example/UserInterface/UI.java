@@ -1,5 +1,6 @@
 package org.example.UserInterface;
 
+import basicneuralnetwork.NeuralNetwork;
 import org.opencv.highgui.HighGui;
 import org.opencv.videoio.VideoCapture;
 
@@ -15,13 +16,13 @@ public class UI {
 
     private VideoCapture capture;
 
-    public UI(VideoCapture capture) throws Exception {
+    public UI(VideoCapture capture, NeuralNetwork network) throws Exception {
         this.capture = capture;
         imageJframe = HighGui.createJFrame("Vision training data", JFrame.EXIT_ON_CLOSE);
         label = new JLabel();
         window = new Window(imageJframe, label);
         surface = new Surface(capture);
-        events = new EventHandler(window, surface);
+        events = new EventHandler(window, surface, network);
         window.init(surface.window_surface);
     }
 

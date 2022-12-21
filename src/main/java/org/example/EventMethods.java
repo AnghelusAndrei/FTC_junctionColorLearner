@@ -1,6 +1,7 @@
 package org.example;
 
-import org.example.MachineLearning.NeuralNetwork;
+import basicneuralnetwork.NeuralNetwork;
+import basicneuralnetwork.activationfunctions.ActivationFunction;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
 
@@ -51,22 +52,31 @@ public class EventMethods {
         }
     }
 
-    private static void Learn(Mat data, Mat expectedOutput, NeuralNetwork network){
+    public void Learn(Mat data, Mat expectedOutput, Mat ignored, NeuralNetwork network){
+        System.out.println("Started learning from current training data");
+        int q = 0;
+
+        network.setLearningRate(0.04);
+        network.setActivationFunction(ActivationFunction.SIGMOID);
+
         for(int i = 0; i < data.rows(); i++){
             for(int j = 0; j < data.cols(); j++){
+                double[] ignored_data = ignored.get(i,j);
                 double[] inputs = data.get(i,j);
+                if((inputs[0] == 0 && inputs[1] == 0 && inputs[2] == 0) || ignored_data[0] > 100) {q++;continue;}
                 inputs[0] /= 255;
                 inputs[1] /= 255;
                 inputs[2] /= 255;
                 double[] expectedOutputs = expectedOutput.get(i,j);
                 expectedOutputs[0] /= 255;
-                expectedOutputs[1] = 1-expectedOutputs[0];
-                network.Learn(inputs, expectedOutputs, 0.2);
+
+                network.train(inputs, expectedOutputs);
             }
         }
+        System.out.println("Finished learning from current training data, ignored: " + q);
     }
 
-    private static double[][][] lookupTable(NeuralNetwork network){
+    public double[][][] lookupTable(NeuralNetwork network){
         double[][][] table = new double[255][255][255];
         for(int i = 0; i < 255; i++){
             for(int j = 0; j < 255; j++){
@@ -75,7 +85,7 @@ public class EventMethods {
                     inputs[0] = i;
                     inputs[1] = j;
                     inputs[2] = k;
-                    double[] outputs = network.CalculateOutputs(inputs);
+                    double[] outputs = network.guess(inputs);
                     table[i][j][k] = outputs[0];
                 }
             }
