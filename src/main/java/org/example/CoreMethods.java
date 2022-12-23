@@ -74,7 +74,7 @@ public class CoreMethods {
         network.writeToFile();
     }
     public void LoadNeuralNetwork(NeuralNetwork network){
-        network = NeuralNetwork.readFromFile();
+        network = network.readFromFile();
     }
     public void ExportLUT(NeuralNetwork network){
         System.out.println("Started exporting LUT");
