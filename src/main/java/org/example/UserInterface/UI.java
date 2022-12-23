@@ -26,9 +26,10 @@ public class UI {
         window.init(surface.window_surface);
     }
 
-    public void run() throws Exception {
+    public void run(NeuralNetwork network) throws Exception {
         while(capture.read(surface.image)){
-            window.run(surface.getWindowSurface(window));
+            if(!window.previewState)window.runTraining(surface.getWindowSurface(window));
+            else window.runPreview(surface.getPreviewSurface(network));
         }
     }
 }

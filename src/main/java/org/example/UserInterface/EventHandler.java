@@ -33,10 +33,15 @@ public class EventHandler {
                     surface.expectedImage.setTo(new Scalar(0));
                 }else if(e.getKeyCode() == KeyEvent.VK_SHIFT){
                     window.isShift = true;
-                } else if(e.getKeyCode()==KeyEvent.VK_E) {
+                }else if(e.getKeyCode()==KeyEvent.VK_E) {
                     methods.ExportLUT(network);
+                }else if(e.getKeyCode()==KeyEvent.VK_P){
+                    window.previewState = !window.previewState;
+                }else if(e.getKeyCode()==KeyEvent.VK_S){
+                    methods.SaveNeuralNetwork(network);
+                }else if(e.getKeyCode()==KeyEvent.VK_L){
+                    methods.LoadNeuralNetwork(network);
                 }
-
 
             }
 

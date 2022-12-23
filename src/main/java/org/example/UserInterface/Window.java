@@ -18,17 +18,19 @@ public class Window {
     public Point cursurLocation;
     public int cursorZoom;
     public boolean isShift;
+    public boolean previewState;
 
     Window(JFrame imageJframe, JLabel label){
         cursurLocation = new Point(0,0);
         this.imageJframe = imageJframe;
         this.label = label;
         this.isShift = false;
+        this.previewState = false;
     }
 
     void init(Mat window_surface) throws Exception{
         try{
-            run(window_surface);
+            runTraining(window_surface);
             imageJframe.getContentPane().add(label);
             imageJframe.pack();
             imageJframe.setVisible(true);
@@ -37,9 +39,16 @@ public class Window {
         }
     }
 
-    void run(Mat window_surface)throws Exception{
+    void runTraining(Mat window_surface)throws Exception{
         try{
             label.setIcon(new ImageIcon(Mat2BufferedImage(window_surface)));
+        }catch (Exception e){
+            throw new RuntimeException(e);
+        }
+    }
+    void runPreview(Mat preview)throws Exception{
+        try{
+            label.setIcon(new ImageIcon(Mat2BufferedImage(preview)));
         }catch (Exception e){
             throw new RuntimeException(e);
         }

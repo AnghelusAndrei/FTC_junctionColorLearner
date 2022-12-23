@@ -1,5 +1,6 @@
 package org.example.UserInterface;
 
+import basicneuralnetwork.NeuralNetwork;
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.videoio.VideoCapture;
@@ -15,6 +16,7 @@ public class Surface {
     public Mat expectedImage_rgb;
     public Mat window_surface;
     public Mat ROI;
+    public Mat previewImage;
 
     Surface(VideoCapture capture){
         image = new Mat();
@@ -28,6 +30,7 @@ public class Surface {
         window_surface = new Mat(image.rows(), image.cols(), image.type());
         overlay = new Mat(image.rows(), image.cols(), CV_8U);
         overlay_rgb = new Mat(image.rows(), image.cols(), image.type());
+        previewImage = new Mat(image.rows(), image.cols(), image.type());
 
         window_surface.setTo(new Scalar(0,0,0));
         overlay.setTo(new Scalar(0));
@@ -36,6 +39,26 @@ public class Surface {
         expectedImage_rgb.setTo(new Scalar(0,0,0));
 
         Core.copyTo(matrix, window_surface, matrix);
+    }
+
+    public Mat getPreviewSurface(NeuralNetwork network){
+        previewImage.setTo(new Scalar(0,0,0));
+        for(int i = 0; i < previewImage.rows(); i++){
+            for(int j = 0; j < previewImage.cols(); j++){
+                double[] pixel = image.get(i,j);
+                pixel[0] /= 255.0;
+                pixel[1] /= 255.0;
+                pixel[2] /= 255.0;
+                double[] guess = network.guess(pixel);
+                double[] output = new double[3];
+                output[0] = guess[0] * 255.0;
+                output[1] = guess[0] * 255.0;
+                output[2] = guess[0] * 255.0;
+                previewImage.put(i,j,output);
+            }
+        }
+
+        return previewImage;
     }
 
     public Mat getWindowSurface(Window window){

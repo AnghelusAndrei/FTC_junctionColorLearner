@@ -39,7 +39,7 @@ public class Main {
 
         System.out.println("Loaded OpenCV");
 
-        NeuralNetwork neuralNetwork = new NeuralNetwork(3, 2, 20, 1);
+        NeuralNetwork neuralNetwork = new NeuralNetwork(3, 2, 30, 1);
 
 
 
@@ -48,7 +48,7 @@ public class Main {
         else capture = new VideoCapture(0);
 
         UI userInterface = new UI(capture, neuralNetwork);
-        userInterface.run();
+        userInterface.run(neuralNetwork);
 
         capture.release();
     }
