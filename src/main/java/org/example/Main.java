@@ -1,7 +1,9 @@
 package org.example;
 import basicneuralnetwork.NeuralNetwork;
+import basicneuralnetwork.activationfunctions.ActivationFunction;
 import org.example.UserInterface.UI;
 import org.opencv.core.*;
+import org.opencv.imgproc.Imgproc;
 import org.opencv.videoio.VideoCapture;
 import org.opencv.videoio.Videoio;
 
@@ -39,16 +41,23 @@ public class Main {
 
         System.out.println("Loaded OpenCV");
 
-        NeuralNetwork neuralNetwork = new NeuralNetwork(3, 2, 30, 1);
+        NeuralNetwork neuralNetwork = new NeuralNetwork(3, 3, 45, 1);
+        neuralNetwork.setLearningRate(0.035);
+        neuralNetwork.setActivationFunction(ActivationFunction.SIGMOID);
+        System.out.println("Create neural network\nOpening capture");
 
 
 
         VideoCapture capture;
         if(OSUtil.getOS()== OSUtil.OS.LINUX) capture= new VideoCapture(0, Videoio.CAP_V4L2);
         else capture = new VideoCapture(0);
+        System.out.println("Created capture");
+
+        capture.set(Videoio.CAP_PROP_AUTO_EXPOSURE, 0);
+        capture.set(Videoio.CAP_PROP_EXPOSURE, -6);
 
         UI userInterface = new UI(capture, neuralNetwork);
-        userInterface.run(neuralNetwork);
+        userInterface.run();
 
         capture.release();
     }
