@@ -44,6 +44,15 @@ public class CoreMethods {
         }
     }
 
+    public void LearnUntil(Mat data, Mat expectedOutput, Mat ignored, NeuralNetwork network, double expectedCost){
+        double cost = CalculateCost(data, ignored, expectedOutput, network);
+        System.out.println(cost);
+        while(cost > expectedCost){
+            Learn(data, expectedOutput, ignored, network);
+            cost = CalculateCost(data, ignored, expectedOutput, network);
+        }
+    }
+
     public void Learn(Mat data, Mat expectedOutput, Mat ignored, NeuralNetwork network){
         System.out.println("Started learning from current training data");
 
@@ -85,7 +94,7 @@ public class CoreMethods {
 
     public void SaveNeuralNetwork(NeuralNetwork network){
         if(filename != ""){
-            network.writeToFile(dir + filename);
+            network.writeToFile(filename);
             System.out.println("Saved network");
             return;
         }
@@ -135,7 +144,6 @@ public class CoreMethods {
     }
 
     public void CustomAutoExposure(VideoCapture capture, int initialExposure, double treshold){
-        capture.set(Videoio.CAP_PROP_AUTO_EXPOSURE, 0);
 
         Mat matrix = new Mat();
         matrix.setTo(new Scalar(0,0,0));
@@ -160,7 +168,7 @@ public class CoreMethods {
             }
         }
 
-        System.out.println("Finished setting exposure");
+        System.out.println("Finished setting exposure " + initialExposure);
     }
 
 

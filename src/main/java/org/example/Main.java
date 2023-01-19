@@ -42,19 +42,19 @@ public class Main {
         System.out.println("Loaded OpenCV");
 
         NeuralNetwork neuralNetwork = new NeuralNetwork(3, 3, 45, 1);
-        neuralNetwork.setLearningRate(0.035);
+        neuralNetwork.setLearningRate(0.02);
         neuralNetwork.setActivationFunction(ActivationFunction.SIGMOID);
         System.out.println("Create neural network\nOpening capture");
 
 
 
         VideoCapture capture;
-        if(OSUtil.getOS()== OSUtil.OS.LINUX) capture= new VideoCapture(0, Videoio.CAP_V4L2);
-        else capture = new VideoCapture(0);
+        if(OSUtil.getOS()== OSUtil.OS.LINUX) capture= new VideoCapture(1, Videoio.CAP_V4L2);
+        else capture = new VideoCapture(1);
         System.out.println("Created capture");
 
         capture.set(Videoio.CAP_PROP_AUTO_EXPOSURE, 0);
-        capture.set(Videoio.CAP_PROP_EXPOSURE, -6);
+        capture.set(Videoio.CAP_PROP_EXPOSURE, -8);
 
         UI userInterface = new UI(capture, neuralNetwork);
         userInterface.run();

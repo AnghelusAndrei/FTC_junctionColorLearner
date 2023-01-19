@@ -8,6 +8,7 @@ import org.opencv.core.Scalar;
 import org.opencv.highgui.HighGui;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.videoio.VideoCapture;
+import org.opencv.videoio.Videoio;
 
 import javax.swing.*;
 import java.awt.event.*;
@@ -22,6 +23,8 @@ public class UI {
     private VideoCapture capture;
 
     public NeuralNetwork network;
+
+    public double exposure = -6;
 
     private void AssignToThis(NeuralNetwork network){
         this.network = network;
@@ -61,10 +64,30 @@ public class UI {
                     methods.SaveNewNeuralNetwork(network);
                 }else if(e.getKeyCode()==KeyEvent.VK_A){
                     methods.CustomAutoExposure(capture, -6, 254);
-                }else if(e.getKeyCode()==KeyEvent.VK_Z){
-                    AssignToThis(methods.LoadSpecific("networks/network2.json"));
-//                    methods.ExportLUT(network);
+                }else if(e.getKeyCode()==KeyEvent.VK_D){
+                    methods.LearnUntil(surface.matrix, surface.expectedImage, surface.overlay, network, 0.001);
+                }else if(e.getKeyCode()==KeyEvent.VK_LEFT){
+                    exposure--;
+                    capture.set(Videoio.CAP_PROP_EXPOSURE, exposure);
+                    capture.read(surface.matrix);
+                    System.out.println("Changed exposure to " + exposure);
+                }else if(e.getKeyCode()==KeyEvent.VK_RIGHT){
+                    exposure++;
+                    capture.set(Videoio.CAP_PROP_EXPOSURE, exposure);
+                    capture.read(surface.matrix);
+                    System.out.println("Changed exposure to " + exposure);
+                }else if(e.getKeyCode()==KeyEvent.VK_UP){
+                    double learnRate = network.getLearningRate() + 0.01;
+                    network.setLearningRate(learnRate);
+                    System.out.println("Changed learn rate to " + learnRate);
+                }else if(e.getKeyCode()==KeyEvent.VK_DOWN){
+                    double learnRate = network.getLearningRate() - 0.01;
+                    network.setLearningRate(learnRate);
+                    System.out.println("Changed learn rate to " + learnRate);
+                }else if(e.getKeyCode()==KeyEvent.VK_C){
+                    System.out.println("Cost: " + methods.CalculateCost(surface.matrix, surface.overlay, surface.expectedImage, network));
                 }
+
 
             }
 
