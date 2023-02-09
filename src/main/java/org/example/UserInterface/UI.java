@@ -86,6 +86,8 @@ public class UI {
                     System.out.println("Changed learn rate to " + learnRate);
                 }else if(e.getKeyCode()==KeyEvent.VK_C){
                     System.out.println("Cost: " + methods.CalculateCost(surface.matrix, surface.overlay, surface.expectedImage, network));
+                }else if(e.getKeyCode()==KeyEvent.VK_EQUALS){
+                    methods.Learn(surface.image, surface.expectedImage, surface.overlay, network);
                 }
 
 

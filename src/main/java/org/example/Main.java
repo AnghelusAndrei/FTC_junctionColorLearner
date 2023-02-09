@@ -13,8 +13,6 @@ import java.util.Objects;
 public class Main {
 
 
-
-
     public static void main(String[] args) throws Exception {
         try {
                 System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
