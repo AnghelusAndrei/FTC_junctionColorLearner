@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="FTC_JunctionColorLearner:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/FTC_JunctionColorLearner_jar</output-path>
+    <root id="archive" name="FTC_JunctionColorLearner.jar">
+      <element id="module-output" name="FTC_JunctionColorLearner" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/src/main/resources/basic_neural_network-v0.5.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/src/main/resources/opencv-460.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
