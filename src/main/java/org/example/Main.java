@@ -4,6 +4,7 @@ import basicneuralnetwork.activationfunctions.ActivationFunction;
 import org.example.UserInterface.UI;
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.video.Video;
 import org.opencv.videoio.VideoCapture;
 import org.opencv.videoio.Videoio;
 
